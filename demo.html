@@ -1,0 +1,415 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+
+<head>
+    <title>Untitled</title>
+    <link rel="stylesheet" href="xtable.css" media="all">
+
+    <script src="jquery-3.4.1.min.js"></script>
+    <script src="XTable.js"></script>
+    <script type="text/javascript">
+        var cols = [{
+                "field": "companyId",
+                "title": "公司ID",
+                "hidden": true,
+                "readOnly": true,
+                "event": null,
+                "children": []
+            },
+            {
+                "field": "companyName",
+                "title": "公司",
+                "hidden": false,
+                "readOnly": true,
+                "event": "null",
+                "children": []
+            },
+            {
+                "field": 4,
+                "title": "标题",
+                "hidden": false,
+                "readOnly": true,
+                "event": null,
+                "children": [{
+                        "field": "529",
+                        "title": "标题",
+                        "hidden": false,
+                        "readOnly": true,
+                        "event": null,
+                        "children": [{
+                            "field": "530",
+                            "title": "标题标题",
+                            "hidden": false,
+                            "readOnly": false,
+                            "event": "4_530",
+                            "summary": true,
+                            "children": []
+                        }]
+                    },
+                    {
+                        "field": "531",
+                        "title": "标题",
+                        "hidden": false,
+                        "readOnly": true,
+                        "event": null,
+                        "children": [{
+                            "field": "532",
+                            "title": "标题标题",
+                            "hidden": false,
+                            "readOnly": false,
+                            "event": null,
+                            "children": []
+                        }, {
+                            "field": "534",
+                            "title": "标题标题",
+                            "hidden": false,
+                            "readOnly": false,
+                            "event": null,
+                            "children": []
+                        }]
+                    },
+                    {
+                        "field": "533",
+                        "title": "标题",
+                        "hidden": false,
+                        "readOnly": true,
+                        "event": null,
+                        "textAlign": "text-right",
+                        "width": 200,
+                        "children": []
+                    },
+                    {
+                        "field": "status",
+                        "title": "标题",
+                        "hidden": false,
+                        "readOnly": true,
+                        "summary": false,
+                        "event": null,
+                        "children": []
+                    }
+                ]
+            }
+        ];
+        var data = [{
+                "530": "888888888.00",
+                "532": "11111.00",
+                "533": "888877777.00",
+                "status": "生效",
+                "companyId": "C00001",
+                "companyName": "公司公司有限公司"
+            },
+            {
+                "530": "88888883338.98",
+                "532": "4444444.00",
+                "533": "88884438894.98",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_天津"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            },
+            {
+                "530": "9999999.00",
+                "532": "111311.00",
+                "533": "9888688.00",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_河北"
+            }
+        ];
+
+        var data2 = [{
+                "530": "888888888.00",
+                "532": "11111.00",
+                "533": "888877777.00",
+                "status": "生效",
+                "companyId": "C00001",
+                "companyName": "公司公司有限公司"
+            },
+            {
+                "530": "88888883338.98",
+                "532": "4444444.00",
+                "533": "88884438894.98",
+                "status": "生效",
+                "companyId": "C00002",
+                "companyName": "公司_天津"
+            }
+        ];
+
+        $(document).ready(function () {
+            // 下面表格需要编辑
+            var options = {
+                data: data,
+                colnums: cols,
+                readOnly: true,
+                summary: true,
+                fixedheader: true,
+                fixedcolnums: 2
+            };
+            var xTable = new XTable($("#container")[0], options);
+
+            console.log(xTable);
+            $("#showAll").click(function () {
+                alert(JSON.stringify(xTable.getAllData()));
+            });
+
+            var options2 = {
+                colnums: cols,
+                data: data2,
+                summary: true,
+                readOnly: true
+            };
+            // var xTable2 = new XTable($("#demo1")[0], options2);
+            // $("#showAll2").click(function () {
+            //     alert(JSON.stringify(xTable2.getAllData()));
+            // });
+
+            function toThousands(num) {
+                var num = (num || 0).toString(),
+                    result = '';
+                var point = num.indexOf(".") == -1 ? "" : num.substring(num.indexOf("."));
+                num = num.indexOf(".") == -1 ? "" : num.substring(0, num.indexOf("."));
+                while (num.length > 3) {
+                    result = ',' + num.slice(-3) + result;
+                    num = num.slice(0, num.length - 3);
+                }
+                if (num) {
+                    result = num + result + point;
+                }
+                return result;
+            }
+
+            //alert(toThousands("12345679.00"));
+
+        });
+    </script>
+</head>
+
+<body>
+    <input type="button" id="showAll" value="showAll"></input>
+    <input type="button" id="showAll2" value="showAll_down"></input>
+    <br>
+    <br>
+    <div id="container">
+
+    </div>
+    <br>
+
+</body>
+
+</html>

@@ -1,0 +1,180 @@
+#container {
+    width: 60%;
+    margin: 0 auto;
+}
+
+.xtable-container {
+    width: 100%;
+    height: auto;
+    background: #fff;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0px;
+}
+
+.xtable-container * {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+.xtable-container .xtable-wraper {
+    width: 100%;
+    background: #fff;
+    position: relative;
+}
+
+.xtable-container .xtable-wraper-main {
+    padding-top: 0px;
+    background: #fff;
+    overflow: auto;
+}
+
+.xtable-container .xtable-head {
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background: #fff;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.xtable-container .xtable-shadow {
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 0px 10px 0px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0 0px 10px 0px rgba(0, 0, 0, 0.3);
+    -o-box-shadow: 0 0px 10px 0px rgba(0, 0, 0, 0.3);
+    -ms-box-shadow: 0 0px 10px 0px rgba(0, 0, 0, 0.3);
+}
+
+.xtable-container .xtable-left {
+    position: absolute;
+    /*需要计算*/
+    width: 201px;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    z-index: 3;
+}
+
+.xtable-container .xtable-body {
+    /*需要设置*/
+    max-height: 200px;
+    background: #fff;
+}
+
+.xtable-container table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.xtable-container td {
+    border: 1px solid rgb(58, 126, 3);
+    font-size: 14px;
+    text-align: left;
+    background-color: #ffffff;
+    min-height: 25px;
+    /* line-height: 25px; */
+    transition: 200ms;
+    -moz-transition: 200ms;
+    -webkit-transition: 200ms;
+    -o-transition: 200ms;
+}
+
+.xtable-container th {
+    border: 1px solid rgb(58, 126, 3);
+    padding: 0px 5px;
+    font-size: 0.9em;
+    text-align: left;
+    background-color: #A7C942;
+    min-height: 25px;
+    /* line-height: 25px; */
+}
+
+.xtable-container tbody tr:nth-child(2n+1) td {
+    color: #000000;
+    background-color: #EAF2D3;
+}
+
+/*需要动态设置*/
+/* .xtable-container .xtable-left table {
+    width: 200px;
+} */
+
+.xtable-container .xtable-left-header {
+    position: absolute;
+    z-index: 3;
+}
+
+.xtable-container .xtable-left-body {
+    position: absolute;
+    z-index: 2;
+}
+
+.xtable-container tfoot tr td {
+    background-color: rgb(167, 196, 80);
+    font-weight: bold;
+    text-align: right;
+}
+
+.xtable-container tbody tr.selected td {
+    background-color: rgb(214, 245, 121);
+    border-color: #a7dd03;
+}
+
+.xtable-container tbody tr:hover td {
+    background-color: rgb(111, 148, 1);
+}
+
+.xtable-container tbody tr.hover td {
+    background-color: rgb(111, 148, 1);
+}
+
+.xtable-container .xtable-cell {
+    height: 28px;
+    line-height: 28px;
+    position: relative;
+    padding: 0px 5px;
+    font-size: 14px;
+}
+
+.xtable-container td input[type='text'] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    border: 1px solid green;
+    height: 28px;
+    line-height: 28px;
+    width: 100%;
+    border-radius: 0;
+    font-size: 14px;
+    padding: 0px 5px;
+}
+
+.xtable-container td input[type='text']::-ms-clear {
+    display: none;
+}
+
+.xtable-container .font-center {
+    text-align: center;
+}
+
+.xtable-container .font-left {
+    text-align: left;
+}
+
+.xtable-container .font-right {
+    text-align: right;
+}
