@@ -329,39 +329,44 @@
             var xbody = container.getElementsByClassName("xtable-body")[0];
             // 左侧浮动
             var fixedLeftEl = container.getElementsByClassName("xtable-left")[0];
-
             // 左侧浮动表格体对象
             var leftBody = fixedLeftEl.getElementsByClassName("xtable-left-body")[0];
             var leftBodyTable = leftBody.getElementsByTagName("table")[0];
-            // 设置表体的顶部距离
-            xbody.style.marginTop = (xhead.offsetHeight + "").concat("px");
-            // 取得头部left值
-            var headerL = wraper.offsetLeft + 1;
-            // 表格体容器的高度
-            var parentElSH = xbody.clientHeight;
-            // 设置左侧浮动窗口大小 = 表体容器的高度 + 表头的高度
-            fixedLeftEl.style.height = (parentElSH + xhead.clientHeight + 1) + "px";
-            // 设置左侧浮动窗口的top = 表头的高度
-            var leftTop = leftBody.style.top = (xhead.clientHeight + 0) + "px";
-            if (!!options.fixedheader) {
-                // 设置头的宽度
-                xhead.style.width = xbody.clientWidth + "px";
-            } else {
-                // 隐藏浮动的头
-                xhead.style.display = "none";
-            }
 
-            if (!!options.fixedcolnums) {
-                // 设置左侧的宽度
-                var ths = xhead.getElementsByTagName("tr")[0].getElementsByTagName("th");
-                var leftW = Number(options.fixedcolnums);
-                for (var i = 0; i < options.fixedcolnums; i++) {
-                    leftW = leftW + ths[i].clientWidth;
+            resize();
+
+            function resize() {
+
+                // 设置表体的顶部距离
+                xbody.style.marginTop = (xhead.offsetHeight + "").concat("px");
+                // 取得头部left值
+                var headerL = wraper.offsetLeft + 1;
+                // 表格体容器的高度
+                var parentElSH = xbody.clientHeight;
+                // 设置左侧浮动窗口大小 = 表体容器的高度 + 表头的高度
+                fixedLeftEl.style.height = (parentElSH + xhead.clientHeight + 1) + "px";
+                // 设置左侧浮动窗口的top = 表头的高度
+                var leftTop = leftBody.style.top = (xhead.clientHeight + 0) + "px";
+                if (!!options.fixedheader) {
+                    // 设置头的宽度
+                    xhead.style.width = xbody.clientWidth + "px";
+                } else {
+                    // 隐藏浮动的头
+                    xhead.style.display = "none";
                 }
-                fixedLeftEl.style.width = leftW + "px";
-            } else {
-                // 隐藏左侧浮动
-                fixedLeftEl.style.display = "none";
+
+                if (!!options.fixedcolnums) {
+                    // 设置左侧的宽度
+                    var ths = xhead.getElementsByTagName("tr")[0].getElementsByTagName("th");
+                    var leftW = Number(options.fixedcolnums);
+                    for (var i = 0; i < options.fixedcolnums; i++) {
+                        leftW = leftW + ths[i].clientWidth;
+                    }
+                    fixedLeftEl.style.width = leftW + "px";
+                } else {
+                    // 隐藏左侧浮动
+                    fixedLeftEl.style.display = "none";
+                }
             }
             var trs = xbody.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
             var ltrs = !!options.fixedcolnums ? leftBody.getElementsByTagName("tbody")[0].getElementsByTagName("tr") : null;
@@ -485,10 +490,12 @@
             if (!!options.fixedcolnums || !!options.fixedheader) {
                 function handleScroll() {
                     console.log("top : " + wraperMain.scrollTop);
+
                     if (!!options.fixedcolnums) {
                         // 竖向滚动条滚动
                         // leftBody.scrollTop = wraperMain.scrollTop;
                         leftBodyTable.style.marginTop = "-".concat(Math.ceil(wraperMain.scrollTop)).concat("px");
+                        console.log("top : " + Date.now());
                     }
                     // 横向滚动条滚动
                     headTable.style.marginLeft = "-".concat(wraperMain.scrollLeft).concat("px");
@@ -503,13 +510,50 @@
 
 
                 };
+
+                // 节流函数
+                function throttle(func, wait, options) {
+                    var context, args, result;
+                    var timeout = null;
+                    var previous = 0;
+                    if (!options) options = {};
+                    var later = function () {
+                        previous = options.leading === false ? 0 : Date.now();
+                        timeout = null;
+                        result = func.apply(context, args);
+                        if (!timeout) context = args = null;
+                    };
+                    return function () {
+                        var now = Date.now();
+                        if (!previous && options.leading === false) previous = now;
+                        var remaining = wait - (now - previous);
+                        context = this;
+                        args = arguments;
+                        if (remaining <= 0 || remaining > wait) {
+                            if (timeout) {
+                                clearTimeout(timeout);
+                                timeout = null;
+                            }
+                            previous = now;
+                            result = func.apply(context, args);
+                            if (!timeout) context = args = null;
+                        } else if (!timeout && options.trailing !== false) {
+                            timeout = setTimeout(later, remaining);
+                        }
+                        return result;
+                    };
+                };
                 // fixedLeftEl.onmousewheel = function () {
                 //     console.log("sssssssssssss");
                 // }
                 // 监听滚动条事件
                 wraperMain.onscroll = function () {
-                    handleScroll();
+                    throttle(handleScroll(), 15);
                 };
+
+                window.onresize = function () {
+                    resize();
+                }
             }
         };
 
