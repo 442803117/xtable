@@ -350,53 +350,6 @@
                 "companyName": "公司_天津"
             }
         ];
-
-        $(document).ready(function () {
-            // 下面表格需要编辑
-            var options = {
-                data: data,
-                colnums: cols,
-                readOnly: true,
-                summary: true,
-                fixedheader: true,
-                fixedcolnums: 2
-            };
-            var xTable = new XTable($("#container")[0], options);
-
-            console.log(xTable);
-            $("#showAll").click(function () {
-                alert(JSON.stringify(xTable.getAllData()));
-            });
-
-            var options2 = {
-                colnums: cols,
-                data: data2,
-                summary: true,
-                readOnly: true
-            };
-            // var xTable2 = new XTable($("#demo1")[0], options2);
-            // $("#showAll2").click(function () {
-            //     alert(JSON.stringify(xTable2.getAllData()));
-            // });
-
-            function toThousands(num) {
-                var num = (num || 0).toString(),
-                    result = '';
-                var point = num.indexOf(".") == -1 ? "" : num.substring(num.indexOf("."));
-                num = num.indexOf(".") == -1 ? "" : num.substring(0, num.indexOf("."));
-                while (num.length > 3) {
-                    result = ',' + num.slice(-3) + result;
-                    num = num.slice(0, num.length - 3);
-                }
-                if (num) {
-                    result = num + result + point;
-                }
-                return result;
-            }
-
-            //alert(toThousands("12345679.00"));
-
-        });
     </script>
 </head>
 
@@ -409,7 +362,22 @@
 
     </div>
     <br>
-
+    <script type="text/javascript">
+        // 下面表格需要编辑
+        var options = {
+            data: data,
+            colnums: cols,
+            readOnly: true,
+            summary: true,
+            fixedheader: true,
+            fixedcolnums: 2
+        };
+        var xTable = new XTable(document.getElementById("container"), options);
+        console.log(xTable);
+        document.getElementById("showAll").onclick = function () {
+            alert(JSON.stringify(xTable.getAllData()));
+        };
+    </script>
 </body>
 
 </html>

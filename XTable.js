@@ -452,8 +452,8 @@
                 fixedLeftEl.className = fixedLeftEl.className.replace(" xtable-shadow", "");
             }
         };
-
         /** 事件结束 **/
+
         for (var i = 0; i < trs.length; i++) {
             // 绑定序号单击事件
             trs[i].firstChild.onclick = function () {
