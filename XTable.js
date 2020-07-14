@@ -39,11 +39,18 @@
      * 格式化千位符
      * 
      * @param {*} num 
+     * @param {小数位} digits
      */
-    function toThousands(num) {
+    function toThousands(num, digits) {
         var num = (num).toString(),
+            digitsStr = "",
             result = '';
-        var point = num.indexOf(".") == -1 ? "" : num.substring(num.indexOf("."));
+        digits = !digits ? 2 : digits;
+        for (var i = 0; i < digits; i++) {
+            digitsStr = digitsStr + "0";
+        }
+        var point = num.indexOf(".") == -1 ? "." : num.substring(num.indexOf("."));
+        point = (point + digitsStr).substring(0, digits + 1);
         num = num.indexOf(".") == -1 ? num : num.substring(0, num.indexOf("."));
         while (num.length > 3) {
             result = ',' + num.slice(-3) + result;
@@ -135,15 +142,164 @@
         // 生成表头项目树
         var headerTree = clacColspan(options.colnums, 0);
         headerTree = calcRowspan(headerTree, maxDepth + 1);
+        options.xHeader = headerTree;
+        options.xMaxFloor = maxDepth;
+        options.xSummaryFields = summaryFields;
+        options.xFields = fields;
+        options.xFieldsConfig = fieldsConfig;
+    };
 
-        return {
-            xHeader: headerTree,
-            xMaxFloor: maxDepth,
-            xSummaryFields: summaryFields,
-            // 生成数据项列表
-            xFields: fields,
-            xFieldsConfig: fieldsConfig
+    /**
+     * 生成colgroup
+     */
+    var renderColgroup = function (opt) {
+        // 生成colgroup
+        var colgroup = [];
+        colgroup.push("<colgroup>");
+        colgroup.push("<col style=\"width: 45px; min-width: 45px; height: 25px; \">");
+        for (var i = 0; i < opt.xFields.length; i++) {
+            var width = !opt.xFieldsConfig[i].width ? opt.defVal.width : opt.xFieldsConfig[i].width;
+            colgroup.push("<col style=\"width: ")
+            colgroup.push(width);
+            colgroup.push("px; min-width: ")
+            colgroup.push(width);
+            colgroup.push("px; height: ");
+            colgroup.push(opt.defVal.height)
+            colgroup.push("px; \">");
+        }
+        colgroup.push("</colgroup>");
+
+        return colgroup.join("");
+    }
+    /**
+     * 生成表体的html内容
+     * 
+     * @param {*} data 
+     */
+    var renderTbody = function (opt, bodyData) {
+        // 无传递数据则使用默认数据
+        bodyData = !bodyData ? options.data : bodyData;
+        if (!bodyData || bodyData.length < 1) {
+            return "<tbody><tr><td class=\"font-center\" colspan=\"" +
+                (opt.xFields.length + 1) + "\">无数据</td></tr></tbody>";
+        }
+
+        // 计算合计项目
+        var summaryItem = [];
+        var html = "";
+        for (var j = 0; j < bodyData.length; j++) {
+            var tr = "<td title=\"点击选择此行\" class=\"font-center\"><div class=\"xtable-cell\">"
+                .concat(j + 1).concat("</div></td>");
+            for (var i = 0; i < opt.xFields.length; i++) {
+                var tdValue = !bodyData[j][opt.xFields[i]] ? "" : bodyData[j][opt.xFields[i]];
+                var textAglin = !opt.xFieldsConfig[i].textAglin ? "font-left" : "font-" + opt.xFieldsConfig[i].textAglin;
+                if (opt.xFieldsConfig[i].valueType && opt.xFieldsConfig[i].valueType == "number") {
+                    tdValue = toThousands(tdValue);
+                }
+                tr = tr.concat("<td data-x=\"").concat(j).concat("\" data-y=\"")
+                    .concat(i).concat("\"><div class=\"xtable-cell " + textAglin + "\">")
+                    .concat(tdValue).concat("</div></td>");
+                if (opt.summary) {
+                    // 计算项目合计
+                    if (!!opt.xSummaryFields[i]) {
+                        !!summaryItem[i] ? summaryItem[i] = (Number(summaryItem[i]) +
+                                Number(bodyData[j][opt.xFields[i]])) :
+                            summaryItem[i] = (Number(bodyData[j][opt.xFields[i]]));
+                    } else {
+                        summaryItem[i] = "";
+                    }
+                }
+            }
+            tr = "<tr>".concat(tr).concat("</tr>");
+            html = html.concat(tr);
+        }
+        html = "<tbody>".concat(html).concat("</tbody>");
+        if (opt.summary) {
+            // 生成合计行
+            var summaryHtml = "<tfoot><tr> <td>合计</td>";
+            for (var i = 0; i < summaryItem.length; i++) {
+                summaryHtml = summaryHtml.concat("<td class=\"font-right\"><div class=\"xtable-cell\">")
+                    .concat(toThousands(summaryItem[i])).concat("</div></td>");
+            }
+            summaryHtml = summaryHtml.concat("</tr></tfoot>");
+            html = html.concat(summaryHtml);
+        }
+
+        return html;
+    }
+
+    /**
+     * 生成表头的html内容
+     * 
+     * @param {*} headers 
+     */
+    var renderThead = function (opt) {
+        var depth = 0;
+        if (!opt.xHeader || opt.xHeader.length == 0) {
+            return "";
+        }
+        var seqHtml = "<th class=\"font-center\" colspan=\"1\" rowspan=\""
+            .concat(opt.xMaxFloor + 1).concat("\">序号</th>");
+        var buildTheadHtml = function (headers, depth) {
+            var html = "";
+            var childHtml = "";
+            for (var rowIndex = 0; rowIndex < headers.length; rowIndex++) {
+                var item = headers[rowIndex];
+                if (!item.hidden) {
+                    var classHml = "class=\"font-center\"";
+                    html = html.concat("<th colspan=\"").concat(item.colspan).concat("\" rowspan=\"")
+                        .concat(item.rowspan).concat("\" ").concat(classHml).concat(">").concat(item.title).concat("</th>");
+                }
+                if (item.children && item.children.length > 0) {
+                    childHtml = childHtml.concat(buildTheadHtml(item.children, depth + 1));
+                }
+            }
+            html = depth == 0 ? seqHtml.concat(html) : html;
+            html = childHtml.length > 0 ? "<tr>".concat(html).concat("</tr>") : html;
+            childHtml = childHtml.length > 0 && childHtml.indexOf("<tr>") == -1 ? "<tr>"
+                .concat(childHtml).concat("</tr>") : childHtml;
+            html = html.concat(childHtml);
+            html = depth == 0 ? "<thead>".concat(html).concat("</thead>") : html;
+            return html;
         };
+
+        return buildTheadHtml(opt.xHeader, depth);
+    };
+
+    /**
+     * 容器内容生成
+     */
+    var htmlTemplate = function () {
+        var html = [];
+        html.push("<div class=\"xtable-container\">");
+        html.push("    <div class=\"xtable-wraper\">");
+        html.push("        <div class=\"xtable-wraper-main\">");
+        html.push("            <div class=\"xtable-left\">");
+        html.push("                <div class=\"xtable-left-header\">");
+        html.push("                    <table>");
+        html.push("                        {xlhead}");
+        html.push("                    </table>");
+        html.push("                </div>");
+        html.push("                <div class=\"xtable-left-body\">");
+        html.push("                    <table>");
+        html.push("                        {xlbody}");
+        html.push("                    </table>");
+        html.push("                </div>");
+        html.push("            </div>");
+        html.push("            <div class=\"xtable-head\">");
+        html.push("                <table>");
+        html.push("                    {xhead}");
+        html.push("                </table>");
+        html.push("            </div>");
+        html.push("            <div class=\"xtable-body\">");
+        html.push("                <table>");
+        html.push("                    {xbody}");
+        html.push("                </table>");
+        html.push("            </div>");
+        html.push("        </div>");
+        html.push("    </div>");
+        html.push("</div>");
+        return html.join("");
     };
 
     /**
@@ -152,160 +308,14 @@
      */
     function render(container, options) {
 
-        var xConfig = clacHeader(options);
-
-        /**
-         * 生成colgroup
-         */
-        var renderColgroup = function () {
-            // 生成colgroup
-            var colgroup = [];
-            colgroup.push("<colgroup>");
-            colgroup.push("<col style=\"width: 45px; min-width: 45px; height: 25px; \">");
-            for (var i = 0; i < xConfig.xFields.length; i++) {
-                var width = !xConfig.xFieldsConfig[i].width ? options.defVal.width : xConfig.xFieldsConfig[i].width;
-                colgroup.push("<col style=\"width: ")
-                colgroup.push(width);
-                colgroup.push("px; min-width: ")
-                colgroup.push(width);
-                colgroup.push("px; height: ");
-                colgroup.push(options.defVal.height)
-                colgroup.push("px; \">");
-            }
-            colgroup.push("</colgroup>");
-
-            return colgroup.join("");
-        }
-        /**
-         * 生成表体的html内容
-         * 
-         * @param {*} data 
-         */
-        var renderTbody = function (data) {
-            // 无传递数据则使用默认数据
-            data = !data ? options.data : data;
-            if (!data || data.length < 1) {
-                return "<tbody><tr><td class=\"font-center\" colspan=\"" +
-                    (xConfig.xFields.length + 1) + "\">无数据</td></tr></tbody>";
-            }
-
-            // 计算合计项目
-            var summaryItem = [];
-            var html = "";
-            for (var j = 0; j < data.length; j++) {
-                var tr = "<td title=\"点击选择此行\" class=\"font-center\"><div class=\"xtable-cell\">".concat(j + 1).concat("</div></td>");
-                for (var i = 0; i < xConfig.xFields.length; i++) {
-                    var tdValue = !data[j][xConfig.xFields[i]] ? "" : data[j][xConfig.xFields[i]];
-                    if (!isNaN(tdValue)) {
-                        tdValue = toThousands(tdValue);
-                    }
-                    tr = tr.concat("<td data-x=\"").concat(j).concat("\" data-y=\"").concat(i).concat("\"><div class=\"xtable-cell\">")
-                        .concat(tdValue).concat("</div></td>");
-                    if (options.summary) {
-                        // 计算项目合计
-                        if (!!xConfig.xSummaryFields[i]) {
-                            !!summaryItem[i] ? summaryItem[i] = (Number(summaryItem[i]) + Number(data[j][xConfig.xFields[i]])) :
-                                summaryItem[i] = (Number(data[j][xConfig.xFields[i]]));
-                        } else {
-                            summaryItem[i] = "";
-                        }
-                    }
-                }
-                tr = "<tr>".concat(tr).concat("</tr>");
-                html = html.concat(tr);
-            }
-            html = "<tbody>".concat(html).concat("</tbody>");
-            if (options.summary) {
-                // 生成合计行
-                var summaryHtml = "<tfoot><tr> <td>合计</td>";
-                for (var i = 0; i < summaryItem.length; i++) {
-                    summaryHtml = summaryHtml.concat("<td class=\"font-right\"><div class=\"xtable-cell\">").concat(toThousands(summaryItem[i])).concat("</div></td>");
-                }
-                summaryHtml = summaryHtml.concat("</tr></tfoot>");
-                html = html.concat(summaryHtml);
-            }
-
-            return html;
-        }
-
-        /**
-         * 生成表头的html内容
-         * 
-         * @param {*} headers 
-         */
-        var renderThead = function () {
-            var depth = 0;
-            var headers = xConfig.xHeader;
-            if (!headers || headers.length == 0) {
-                return "";
-            }
-            var seqHtml = "<th class=\"font-center\" colspan=\"1\" rowspan=\"".concat(xConfig.xMaxFloor + 1).concat("\">序号</th>");
-            var buildTheadHtml = function (headers, depth) {
-                var html = "";
-                var childHtml = "";
-                for (var rowIndex = 0; rowIndex < headers.length; rowIndex++) {
-                    var item = headers[rowIndex];
-                    if (!item.hidden) {
-                        var classHml = "class=\"".concat(!item.textAlign ? "font-center" : item.textAlign).concat("\"");
-                        html = html.concat("<th colspan=\"").concat(item.colspan).concat("\" rowspan=\"")
-                            .concat(item.rowspan).concat("\" ").concat(classHml).concat(">").concat(item.title).concat("</th>");
-                    }
-                    if (item.children && item.children.length > 0) {
-                        childHtml = childHtml.concat(buildTheadHtml(item.children, depth + 1));
-                    }
-                }
-                html = depth == 0 ? seqHtml.concat(html) : html;
-                html = childHtml.length > 0 ? "<tr>".concat(html).concat("</tr>") : html;
-                childHtml = childHtml.length > 0 && childHtml.indexOf("<tr>") == -1 ? "<tr>".concat(childHtml).concat("</tr>") : childHtml;
-                html = html.concat(childHtml);
-                html = depth == 0 ? "<thead>".concat(html).concat("</thead>") : html;
-                return html;
-            };
-
-            return buildTheadHtml(headers, depth);
-        };
-
-        /**
-         * 容器内容生成
-         */
-        var htmlTemplate = function () {
-            var html = [];
-            html.push("<div class=\"xtable-container\">");
-            html.push("    <div class=\"xtable-wraper\">");
-            html.push("        <div class=\"xtable-wraper-main\">");
-            html.push("            <div class=\"xtable-left\">");
-            html.push("                <div class=\"xtable-left-header\">");
-            html.push("                    <table>");
-            html.push("                        {xlhead}");
-            html.push("                    </table>");
-            html.push("                </div>");
-            html.push("                <div class=\"xtable-left-body\">");
-            html.push("                    <table>");
-            html.push("                        {xlbody}");
-            html.push("                    </table>");
-            html.push("                </div>");
-            html.push("            </div>");
-            html.push("            <div class=\"xtable-head\">");
-            html.push("                <table>");
-            html.push("                    {xhead}");
-            html.push("                </table>");
-            html.push("            </div>");
-            html.push("            <div class=\"xtable-body\">");
-            html.push("                <table>");
-            html.push("                    {xbody}");
-            html.push("                </table>");
-            html.push("            </div>");
-            html.push("        </div>");
-            html.push("    </div>");
-            html.push("</div>");
-            return html.join("");
-        };
+        clacHeader(options);
 
         // 生成表格html标签内容
-        var thead_html = renderThead();
-        var tbody_html = renderTbody();
-        var colgroup_html = renderColgroup();
-        var table_html = options.fixedheader ? colgroup_html.concat(tbody_html) : colgroup_html.concat(thead_html).concat(tbody_html);
+        var thead_html = renderThead(options);
+        var tbody_html = renderTbody(options);
+        var colgroup_html = renderColgroup(options);
+        var table_html = options.fixedheader ? colgroup_html.concat(tbody_html) :
+            colgroup_html.concat(thead_html).concat(tbody_html);
         var htmlTpl = htmlTemplate();
         htmlTpl = htmlTpl.replace("{xhead}", options.fixedheader ? colgroup_html.concat(thead_html) : "");
         htmlTpl = htmlTpl.replace("{xbody}", table_html);
@@ -404,7 +414,7 @@
                 event.target.innerHTML = toThousands(this.value);
                 var row = event.target.parentNode.getAttribute("data-x");
                 var col = event.target.parentNode.getAttribute("data-y");
-                options.data[row][xConfig.xFields[col]] = this.value;
+                options.data[row][options.xFields[col]] = this.value;
             };
         };
 
@@ -466,7 +476,7 @@
             }
             // 绑定可编辑列的双击事件
             for (var j = 1; j < trs[i].childNodes.length; j++) {
-                if (!xConfig.xFieldsConfig[j - 1]["readOnly"]) {
+                if (!options.xFieldsConfig[j - 1]["readOnly"]) {
                     trs[i].childNodes[j].onclick = function () {
                         onClickTd(event);
                     }
@@ -499,6 +509,7 @@
         if (!!options.fixedcolnums || !!options.fixedheader) {
             // 监听滚动条事件
             wraperMain.onscroll = function () {
+                console.log(wraperMain.scrollTop);
                 handleScroll();
             };
 
@@ -507,6 +518,141 @@
             }
         }
     };
+
+
+
+    /**
+     * 获取选中行的数据
+     * 
+     * @param {*} container 
+     * @param {*} opt 
+     */
+    function getSelectRowData(container, opt) {
+        // 表体
+        var xbody = container.getElementsByClassName("utable-body")[0];
+        var trs = xbody.getElementsByTagName("tbody")[0].getElementsByClassName("selected");
+        var result = [];
+        for (var i = 0; i < trs.length; i++) {
+            result.push(opt.data[trs[i].rowIndex]);
+        }
+
+        return result;
+    }
+
+    /**
+     * 设置某行单元格的值
+     * 
+     * @param {*} container 
+     * @param {*} opt 
+     * @param {*} row 
+     * @param {*} value 
+     */
+    function setRowValue(container, opt, row, value) {
+        // 表体
+        var xbody = container.getElementsByClassName("utable-body")[0];
+        var tr = xbody.getElementsByTagName("tbody")[0].getElementsByTagName("tr")[row];
+        // 左侧浮动表格体对象
+        var leftBody = container.getElementsByClassName("utable-left-body")[0];
+        var leftTr = leftBody.getElementsByTagName("tbody")[0].getElementsByTagName("tr")[row];
+        for (var i = 0; i < opt.xFields.length; i++) {
+            var cell = tr.querySelector("td[data-x='" + row + "'][data-y='" + (i) + "']");
+            var leftCell = leftTr.querySelector("td[data-x='" + row + "'][data-y='" + (i) + "']");
+            var cellValue = value[opt.xFields[i]];
+            opt.data[row][opt.xFields[i]] = cellValue;
+            if (!isNaN(cellValue)) {
+                cellValue = toThousands(cellValue);
+            }
+            cell.firstChild.innerHTML = cellValue;
+            leftCell.firstChild.innerHTML = cellValue;
+        }
+        // 刷新合计
+        refreshSummary(container, opt);
+    }
+
+    /**
+     * 设置某个单元格的值
+     * 
+     * @param {*} container 
+     * @param {*} opt 
+     * @param {行坐标} row 
+     * @param {列坐标} col 
+     * @param {值} value 
+     */
+    function setCellValue(container, opt, row, col, value) {
+        // 表体
+        var xbody = container.getElementsByClassName("utable-body")[0];
+        var cell = xbody.querySelector("td[data-x='" + row + "'][data-y='" + col + "']");
+        // 左侧浮动表格体对象
+        var leftBody = container.getElementsByClassName("utable-left-body")[0];
+        var leftCell = leftBody.querySelector("td[data-x='" + row + "'][data-y='" + col + "']");
+        opt.data[row][opt.xFields[col]] = value;
+        if (!isNaN(value)) {
+            value = toThousands(value);
+        }
+        cell.firstChild.innerHTML = value;
+        leftCell.firstChild.innerHTML = value;
+        if (!isNaN(value)) {
+            refreshSummary(container, opt, col);
+        }
+    }
+
+    /**
+     * 刷新合计行
+     * 
+     * @param {*} container 
+     * @param {*} opt 
+     * @param {*} col
+     * @param {*} bodyData
+     */
+    function refreshSummary(container, opt, col, bodyData) {
+        if (!opt.summary) return;
+        if (!bodyData) {
+            bodyData = opt.data;
+        }
+        // 计算合计项目
+        var summaryItem = new Array(opt.xSummaryFields.length);
+        if (!!col) {
+            if (!opt.xSummaryFields[col]) return;
+            summaryItem[col] = "0.00";
+            for (var i = 0; i < opt.data.length; i++) {
+                // 计算项目合计
+                summaryItem[col] = (Number(summaryItem[col]) + Number(bodyData[i][opt.xFields[col]]));
+            }
+
+        } else {
+            for (var j = 0; j < opt.xSummaryFields.length; j++) {
+                if (!opt.xSummaryFields[j]) {
+                    summaryItem[j] = "";
+                    continue;
+                }
+                summaryItem[j] = "0.00";
+                for (var i = 0; i < bodyData.length; i++) {
+                    // 计算项目合计
+                    summaryItem[j] = (Number(summaryItem[j]) + Number(bodyData[i][opt.xFields[j]]));
+                }
+            }
+        }
+        // 表体
+        var xbody = container.getElementsByClassName("utable-body")[0].getElementsByTagName("tfoot")[0];
+        // 左侧浮动表格体对象
+        var leftBody = container.getElementsByClassName("utable-left-body")[0].getElementsByTagName("tfoot")[0];
+        if (!!col) {
+            var cell = xbody.querySelector("td[data-y='" + col + "']");
+            var leftCell = leftBody.querySelector("td[data-y='" + col + "']");
+            var value = toThousands(summaryItem[col]);
+            cell.firstChild.innerHTML = value;
+            leftCell.firstChild.innerHTML = value;
+        } else {
+            for (var i = 0; i < summaryItem.length; i++) {
+                var cell = xbody.querySelector("td[data-y='" + i + "']");
+                var leftCell = leftBody.querySelector("td[data-y='" + i + "']");
+                var value = toThousands(summaryItem[i]);
+                cell.firstChild.innerHTML = value;
+                leftCell.firstChild.innerHTML = value;
+            }
+        }
+
+    }
 
     /**
      * 构造函数 XTable object
@@ -580,7 +726,7 @@
          * @param {*} handler 事件handler
          */
         on: function (type, handler) {
-            // type: show, shown, hide, hidden, close, confirm
+            // type: linkClick, cellBlur
             if (typeof this.handlers[type] === 'undefined') {
                 this.handlers[type] = [];
             }
