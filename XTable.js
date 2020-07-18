@@ -158,13 +158,13 @@
         colgroup.push("<colgroup>");
         colgroup.push("<col style=\"width: 45px; min-width: 45px; height: 25px; \">");
         for (var i = 0; i < opt.xFields.length; i++) {
-            var width = !opt.xFieldsConfig[i].width ? opt.defVal.width : opt.xFieldsConfig[i].width;
+            var width = !opt.xFieldsConfig[i].width ? opt.def_val.width : opt.xFieldsConfig[i].width;
             colgroup.push("<col style=\"width: ")
             colgroup.push(width);
             colgroup.push("px; min-width: ")
             colgroup.push(width);
             colgroup.push("px; height: ");
-            colgroup.push(opt.defVal.height)
+            colgroup.push(opt.def_val.height)
             colgroup.push("px; \">");
         }
         colgroup.push("</colgroup>");
@@ -319,8 +319,8 @@
         var htmlTpl = htmlTemplate();
         htmlTpl = htmlTpl.replace("{xhead}", options.fixedheader ? colgroup_html.concat(thead_html) : "");
         htmlTpl = htmlTpl.replace("{xbody}", table_html);
-        htmlTpl = htmlTpl.replace("{xlhead}", options.fixedcolnums ? colgroup_html.concat(thead_html) : "");
-        htmlTpl = htmlTpl.replace("{xlbody}", options.fixedcolnums ? colgroup_html.concat(tbody_html) : "");
+        htmlTpl = htmlTpl.replace("{xlhead}", options.fixedleftcolnums ? colgroup_html.concat(thead_html) : "");
+        htmlTpl = htmlTpl.replace("{xlbody}", options.fixedleftcolnums ? colgroup_html.concat(tbody_html) : "");
         // 渲染到容器内
         container.innerHTML = htmlTpl;
         // 滚动条容器的父容器
@@ -360,11 +360,11 @@
                 xhead.style.display = "none";
             }
 
-            if (!!options.fixedcolnums) {
+            if (!!options.fixedleftcolnums) {
                 // 设置左侧的宽度
                 var ths = xhead.getElementsByTagName("tr")[0].getElementsByTagName("th");
-                var leftW = Number(options.fixedcolnums);
-                for (var i = 0; i < options.fixedcolnums; i++) {
+                var leftW = Number(options.fixedleftcolnums);
+                for (var i = 0; i < options.fixedleftcolnums; i++) {
                     leftW = leftW + ths[i].clientWidth;
                 }
                 fixedLeftEl.style.width = leftW + "px";
@@ -374,7 +374,7 @@
             }
         }
         var trs = xbody.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
-        var ltrs = !!options.fixedcolnums ? leftBody.getElementsByTagName("tbody")[0].getElementsByTagName("tr") : null;
+        var ltrs = !!options.fixedleftcolnums ? leftBody.getElementsByTagName("tbody")[0].getElementsByTagName("tr") : null;
         /** 事件开始 */
         /**
          * 序号列单击事件
@@ -447,7 +447,7 @@
         };
 
         function handleScroll() {
-            if (!!options.fixedcolnums) {
+            if (!!options.fixedleftcolnums) {
                 // 竖向滚动条滚动
                 leftBodyTable.style.marginTop = "-".concat(wraperMain.scrollTop).concat("px");
             }
@@ -469,7 +469,7 @@
             trs[i].firstChild.onclick = function () {
                 seqClickTd(event);
             }
-            if (!!options.fixedcolnums) {
+            if (!!options.fixedleftcolnums) {
                 ltrs[i].firstChild.onclick = function () {
                     seqClickTd(event);
                 }
@@ -484,7 +484,7 @@
             }
         }
         // 锁定左侧
-        if (!!options.fixedcolnums) {
+        if (!!options.fixedleftcolnums) {
             // 设置鼠标事件：
             var bodyTrs = xbody.getElementsByTagName("tr");
             var leftBodyTrs = leftBody.getElementsByTagName("tr");
@@ -506,7 +506,7 @@
             }
         }
         // 锁定左侧或者锁定头部
-        if (!!options.fixedcolnums || !!options.fixedheader) {
+        if (!!options.fixedleftcolnums || !!options.fixedheader) {
             // 监听滚动条事件
             wraperMain.onscroll = function () {
                 console.log(wraperMain.scrollTop);
@@ -693,13 +693,21 @@
         _initial: function (opt) {
             // 默认参数
             var def = {
+                // 数据
                 data: [],
+                // 表头
                 colnums: [],
+                // 是否只读
                 readOnly: true,
+                // 是否显示合计行
                 summary: false,
+                // 是否锁定表头
                 fixedheader: false,
-                fixedcolnums: 0,
-                defVal: {
+                // 锁定左侧列数据
+                fixedleftcolnums: 0,
+                // 数值是否千位符显示
+                thousands_separators: true,
+                def_val: {
                     width: 140, // 列宽
                     height: 25 // 行高
                 }
