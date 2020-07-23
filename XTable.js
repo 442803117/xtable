@@ -8,7 +8,7 @@
     /**
      * 判断某个对象是否为数组
      * 
-     * @param {*} o 对象
+     * @param {Object} o 对象
      */
     function isArray(o) {
         if (o === 'undefined' || o === null) return false;
@@ -21,9 +21,10 @@
 
     /**
      * 两个对象进行合并
-     * @param {*} o 目标
-     * @param {*} n 源
-     * @param {*} override 是否覆盖属性
+     * 
+     * @param {Object} o 目标
+     * @param {Object} n 源
+     * @param {Boolean} override 是否覆盖属性
      */
     function extend(o, n, override) {
         n = JSON.parse(JSON.stringify(n));
@@ -38,8 +39,8 @@
     /**
      * 格式化千位符
      * 
-     * @param {*} num 
-     * @param {小数位} digits
+     * @param {Number} num 格式化对象
+     * @param {Number} digits 保留小数位数 默认2
      */
     function toThousands(num, digits) {
         var num = (num).toString(),
@@ -65,7 +66,7 @@
     /**
      * 对传入的表头项目进行处理
      * 
-     * @param {*} options
+     * @param {Object} options
      */
     function clacHeader(options) {
         var maxDepth = 0;
@@ -75,8 +76,8 @@
         /**
          * 计算colspan
          * 
-         * @param childItemList 后端返回的项目数组（树）
-         * @param depth 当前层级，从0开始
+         * @param {Array} childItemList 后端返回的项目数组（树）
+         * @param {Number} depth 当前层级，从0开始
          * @return 增加colspan属性后的项目数组（树）
          **/
         var clacColspan = function (childItems, depth) {
@@ -114,8 +115,8 @@
         /**
          * 计算rowspan，同时把colspan=0的处理为1
          * 
-         * @param childItemList 后端返回的项目数组（树）
-         * @param depth 头部最大层级d
+         * @param {Array} childItemList 后端返回的项目数组（树）
+         * @param {Number} depth 头部最大层级d
          * @return 增加rowspan属性后的项目数组（树）
          **/
         var calcRowspan = function (childItems, maxDepth) {
@@ -151,6 +152,8 @@
 
     /**
      * 生成colgroup
+     * 
+     * @param {Object} opt 配置 
      */
     var renderColgroup = function (opt) {
         // 生成colgroup
@@ -174,7 +177,8 @@
     /**
      * 生成表体的html内容
      * 
-     * @param {*} data 
+     * @param {Object} opt 配置项
+     * @param {Array} bodyData 表体数据集合
      */
     var renderTbody = function (opt, bodyData) {
         // 无传递数据则使用默认数据
@@ -231,7 +235,7 @@
     /**
      * 生成表头的html内容
      * 
-     * @param {*} headers 
+     * @param {Object} opt 配置项
      */
     var renderThead = function (opt) {
         var depth = 0;
@@ -305,6 +309,8 @@
     /**
      * 渲染表格
      * 
+     * @param {Element} container 容器
+     * @param {Object} options 配置项
      */
     function render(container, options) {
 
@@ -341,7 +347,6 @@
         resize();
 
         function resize() {
-
             // 设置表体的顶部距离
             xbody.style.marginTop = (xhead.offsetHeight + "").concat("px");
             // 取得头部left值
@@ -379,8 +384,7 @@
         /**
          * 序号列单击事件
          * 
-         * @param {*} event 
-         * @param {*} obj 
+         * @param {Event} event 
          */
         var seqClickTd = function (event) {
             var row = event.target.parentNode.parentNode.rowIndex;
@@ -399,8 +403,7 @@
         /**
          * 单元格双击事件
          * 
-         * @param {*} event 
-         * @param {*} obj 
+         * @param {Event} event
          */
         var onClickTd = function (event) {
             if (event.target.tagName != "DIV") return;
@@ -476,7 +479,7 @@
             }
             // 绑定可编辑列的双击事件
             for (var j = 1; j < trs[i].childNodes.length; j++) {
-                if (!options.xFieldsConfig[j - 1]["readOnly"]) {
+                if (options.edited && !options.xFieldsConfig[j - 1]["edited"]) {
                     trs[i].childNodes[j].onclick = function () {
                         onClickTd(event);
                     }
@@ -509,7 +512,6 @@
         if (!!options.fixedleftcolnums || !!options.fixedheader) {
             // 监听滚动条事件
             wraperMain.onscroll = function () {
-                console.log(wraperMain.scrollTop);
                 handleScroll();
             };
 
@@ -524,8 +526,8 @@
     /**
      * 获取选中行的数据
      * 
-     * @param {*} container 
-     * @param {*} opt 
+     * @param {Element} container 容器
+     * @param {Object} opt 配置项
      */
     function getSelectRowData(container, opt) {
         // 表体
@@ -542,10 +544,10 @@
     /**
      * 设置某行单元格的值
      * 
-     * @param {*} container 
-     * @param {*} opt 
-     * @param {*} row 
-     * @param {*} value 
+     * @param {Element} container 容器
+     * @param {Object} opt 配置项
+     * @param {Number} row 行标 0 开始
+     * @param {Object} value 行数据
      */
     function setRowValue(container, opt, row, value) {
         // 表体
@@ -572,11 +574,11 @@
     /**
      * 设置某个单元格的值
      * 
-     * @param {*} container 
-     * @param {*} opt 
-     * @param {行坐标} row 
-     * @param {列坐标} col 
-     * @param {值} value 
+     * @param {Element} container 容器
+     * @param {Object} opt 配置项
+     * @param {Number} row 行下标
+     * @param {Number} col 列下标
+     * @param {Object} value 值
      */
     function setCellValue(container, opt, row, col, value) {
         // 表体
@@ -599,10 +601,10 @@
     /**
      * 刷新合计行
      * 
-     * @param {*} container 
-     * @param {*} opt 
-     * @param {*} col
-     * @param {*} bodyData
+     * @param {Element} container 容器
+     * @param {Object} opt 配置项
+     * @param {Number} col 指定刷新的列下标，默认全部列
+     * @param {Array} bodyData 指定要刷新的表体数据，默认opt.data
      */
     function refreshSummary(container, opt, col, bodyData) {
         if (!opt.summary) return;
@@ -657,8 +659,8 @@
     /**
      * 构造函数 XTable object
      * 
-     * @param {*} container
-     * @param {*} options 
+     * @param {Element} container
+     * @param {Object} options 
      */
     function XTable(container, options) {
         if (!(this instanceof XTable)) {
@@ -687,8 +689,8 @@
         /**
          * 初始化
          * 
-         * @param {*} container 
-         * @param {*} opt 
+         * @param {Element} container 
+         * @param {Object} opt 
          */
         _initial: function (opt) {
             // 默认参数
@@ -697,13 +699,13 @@
                 data: [],
                 // 表头
                 colnums: [],
-                // 是否只读
-                readOnly: true,
+                // 是否可编辑
+                edited: true,
                 // 是否显示合计行
                 summary: false,
                 // 是否锁定表头
                 fixedheader: false,
-                // 锁定左侧列数据
+                // 锁定左侧列数，0代表不锁定列
                 fixedleftcolnums: 0,
                 // 数值是否千位符显示
                 thousands_separators: true,
@@ -719,19 +721,20 @@
             this.listeners = []; //自定义事件，用于监听插件的用户交互
             this.handlers = {};
         },
+
         /**
          * 表格渲染
          * 
-         * @param {*} container 
          */
         _render: function () {
             render(this.container, this.def);
         },
+
         /**
          * 添加事件
          * 
-         * @param {*} type 事件类型
-         * @param {*} handler 事件handler
+         * @param {String} type 事件类型
+         * @param {Function} handler 事件handler
          */
         on: function (type, handler) {
             // type: linkClick, cellBlur
@@ -742,11 +745,12 @@
             this.handlers[type].push(handler);
             return this;
         },
+
         /**
          * 移除事件
          * 
-         * @param {*} type 事件类型
-         * @param {*} handler 事件handler
+         * @param {String} type 事件类型
+         * @param {Function} handler 事件handler
          */
         off: function (type, handler) {
             if (this.handlers[type] instanceof Array) {
@@ -761,10 +765,11 @@
                 return this;
             }
         },
+
         /**
          * 提交事件
          * 
-         * @param {} event 事件
+         * @param {Event} event 事件
          */
         emit: function (event) {
             if (!event.target) {
@@ -779,17 +784,61 @@
             }
             return false;
         },
+
+        /**
+         * 返回全部数据
+         */
         getAllData: function () {
-            return this.options.data;
+            var values = JSON.parse(JSON.stringify(this.def.data));
+            return values;
         },
 
-        getSelectedData: function () {},
+        /**
+         * 返回选中行数据
+         */
+        getSelectedData: function () {
+            var values = JSON.parse(JSON.stringify(getSelectRowData()));
+            return values;
+        },
 
-        getChangedData: function () {},
+        /**
+         * 获取变更过的行数据
+         */
+        getChangedData: function () {
 
-        getRowData: function () {},
+        },
 
-        setRowData: function () {}
+        /**
+         * 获取指定行的数据
+         * 
+         * @param {Number} rowIndex 行下标 0 开始
+         */
+        getRowData: function (rowIndex) {
+            var value = JSON.parse(JSON.stringify(this.def.data[rowIndex]));
+            return value;
+        },
+
+        /**
+         * 设置指定行数据
+         * 
+         * @param {Number} rowIndex 行下标 0 开始
+         * @param {Object} rowData 行数据
+         */
+        setRowData: function (rowIndex, rowData) {
+            var value = JSON.parse(JSON.stringify(rowData));
+            setRowValue(this.container, this.def, rowIndex, value);
+        },
+
+        /**
+         * 设置某个单元格值
+         * 
+         * @param {Number} rowIndex 行下标
+         * @param {Number} colIndex 列下标
+         * @param {Object} value 值
+         */
+        setCellValue(rowIndex, colIndex, value) {
+            setCellValue(this.container, this.def, rowIndex, colIndex, value);
+        }
     }
 
     // Use shorcuts for functions names
